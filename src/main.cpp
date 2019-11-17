@@ -87,13 +87,15 @@ int main (int /*argc*/, char* /*argv*/[])
     typedef typename TypeSkipList::Node TypeSkipNode;
 
     TypeSkipList list;
+std::cout<<list.getPreHead()<<"  "<<list.getPreHead()->next;
     tmr.tick();
     int i = 0;
-    for (i = 0; i < 200 * 1000; ++i)
+   /* for (i = 0; i < 200 * 1000; ++i)
+        list.insert(i, i);*/
+    for (i = 0; i < 6; ++i)
         list.insert(i, i);
 
     tmr.tack("SkipList over integers creation");
-
     TypeSkipNode* node = nullptr;
 
     tmr.tick();
@@ -145,5 +147,9 @@ int main (int /*argc*/, char* /*argv*/[])
 
     std::cout << std::endl;
 
+   /* typedef SkipList<int,int,15> TypeSkipList;
+    typedef typename TypeSkipList::Node TypeSkipNode;
+
+    TypeSkipList list;*/
     return 0;
 }

@@ -32,6 +32,8 @@ struct NetActivity
 
     /// URL of the host.
     std::string host;
+
+
 };
 
 /// Operator is declared in the global scope!

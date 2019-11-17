@@ -72,7 +72,20 @@ void JournalNetActivity<numLevels>::dumpJournal(std::ostream& out)
 }
 
 //------------------------------------------------------------------------------
-
+/// Outputs all net activity between \a from and \a to (including borders).
+/// Uses given ostream for output!!!
+///
+/// If `from` > `to` throws std::invalid_argument
+///
+/// Output format should be like this: (one space between key and value)
+/// 2015.07.10 10:33:02 user126 e-maxx.ru
+/// 2015.07.10 10:34:02 user127 e-maxx.ru
+///
+/// The last line should end with a new line.
+/// Line separator should be std::endl.
+/// Empty output is "" without new line.
+///
+/// Net Activities with equal TimeStamps should go in the same order as they were in the journal.
 template <int numLevels>
 void JournalNetActivity<numLevels>::outputSuspiciousActivities(
         const std::string& hostSuspicious,
@@ -80,5 +93,30 @@ void JournalNetActivity<numLevels>::outputSuspiciousActivities(
         const TimeStamp& timeTo,
         std::ostream& out) const
 {
-    // TODO: Implement this method!
+    if(timeFrom > timeTo)
+        throw std::invalid_argument("timeTo > timeFrom");
+    typename NetActivityList::Node* prehead = _journal.getPreHead();
+    typename NetActivityList::Node* run = _journal.findLastLessThan(timeFrom);
+    typename NetActivityList::Node* endNode = _journal.findLastLessThan(timeTo);
+    if(endNode == prehead && !_journal.findFirst(timeTo) || endNode == prehead && endNode->next == prehead || run->next == prehead)
+    {
+        out << "";
+    }
+    while (run->next != prehead && run->next != endNode->next)
+    {
+        run = run->next;
+        if(run->value.host != hostSuspicious)
+            continue;
+        out << run->key;
+        out << " ";
+        out << run->value;
+        out << std::endl;
+    }
+    if(endNode->next == _journal.findFirst(timeTo) && endNode->next->value.host == hostSuspicious)
+    {
+        out << endNode->next->key;
+        out << " ";
+        out << endNode->next->value;
+        out << std::endl;
+    }
 }
