@@ -151,7 +151,7 @@ typename SkipList<Value,Key,numLevels>::Node* SkipList<Value, Key, numLevels>::f
         while(tmp->nextJump[i] != Base::_preHead && tmp->nextJump[i]->key < key)
             tmp = tmp->nextJump[i];
     }
-    if(tmp->next->key < key)
+    if(tmp != Base::_preHead && tmp->next != Base::_preHead && tmp->next->key < key)
         tmp = tmp->next;
     return tmp;
 }
@@ -160,10 +160,8 @@ template<class Value, class Key, int numLevels>
 typename SkipList<Value,Key,numLevels>::Node *SkipList<Value, Key, numLevels>::findFirst(const Key &key) const
 {
     Node* tmp = findLastLessThan(key);
-    std::cout<<"  "<<tmp->key;
     if(tmp == tmp->next || tmp->next == Base::_preHead)
         return nullptr;
-    std::cout<<"ppp";
     if(tmp->next->key != key)
         return nullptr;
     return tmp->next;

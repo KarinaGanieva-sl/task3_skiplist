@@ -94,7 +94,7 @@ void JournalNetActivity<numLevels>::outputSuspiciousActivities(
         std::ostream& out) const
 {
     if(timeFrom > timeTo)
-        throw std::invalid_argument("timeTo > timeFrom");
+        throw std::invalid_argument("timeFrom > timeTo");
     typename NetActivityList::Node* prehead = _journal.getPreHead();
     typename NetActivityList::Node* run = _journal.findLastLessThan(timeFrom);
     typename NetActivityList::Node* endNode = _journal.findLastLessThan(timeTo);
@@ -102,7 +102,7 @@ void JournalNetActivity<numLevels>::outputSuspiciousActivities(
     {
         out << "";
     }
-    while (run->next != prehead && run->next != endNode->next)
+    while (run->next != prehead && run->next->key <= timeTo)
     {
         run = run->next;
         if(run->value.host != hostSuspicious)
@@ -110,13 +110,6 @@ void JournalNetActivity<numLevels>::outputSuspiciousActivities(
         out << run->key;
         out << " ";
         out << run->value;
-        out << std::endl;
-    }
-    if(endNode->next == _journal.findFirst(timeTo) && endNode->next->value.host == hostSuspicious)
-    {
-        out << endNode->next->key;
-        out << " ";
-        out << endNode->next->value;
         out << std::endl;
     }
 }
