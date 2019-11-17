@@ -101,6 +101,7 @@ void JournalNetActivity<numLevels>::outputSuspiciousActivities(
     if(endNode == prehead && !_journal.findFirst(timeTo) || endNode == prehead && endNode->next == prehead || run->next == prehead)
     {
         out << "";
+        return;
     }
     while (run->next != prehead && run->next->key <= timeTo)
     {
