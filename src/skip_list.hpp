@@ -12,6 +12,8 @@
 // !!! DO NOT include skip_list.h here, 'cause it leads to circular refs. !!!
 
 #include <cstdlib>
+#include "skip_list.h"
+
 
 //==============================================================================
 // class NodeSkipList
@@ -55,7 +57,6 @@ NodeSkipList<Value, Key, numLevels>::NodeSkipList(const Key& tkey, const Value& 
     Base::Base::value = val;
 }
 
-
 //==============================================================================
 // class SkipList
 //==============================================================================
@@ -72,5 +73,100 @@ SkipList<Value, Key, numLevels>::SkipList(double probability)
     Base::_preHead->levelHighest = numLevels - 1;
 }
 
+template <class Value, class Key, int numLevels>
+SkipList<Value, Key, numLevels>::~SkipList()
+{
+
+}
+
 
     // TODO: !!! One need to implement all declared methods !!!
+
+template <class Value, class Key, int numLevels>
+void SkipList<Value, Key, numLevels>::insert(const Value& val, const Key& key)
+{
+
+   Node* nodesForUpdate[numLevels];
+   Node* tmp = Base::_preHead;
+   for(int i = numLevels - 1; i >= 0; i--)
+   {
+       while(tmp->nextJump[i] != Base::_preHead && tmp->nextJump[i]->key <= key)
+           tmp = tmp->nextJump[i];
+       nodesForUpdate[i] = tmp;
+   }
+   int newLevel = randLevel();
+   Node* newNode = new Node(key, val);
+   newNode->levelHighest = newLevel;
+   newNode->next = nodesForUpdate[0]->nextJump[0];
+   for(int i = 0; i <= newLevel; i++)
+   {
+       newNode->nextJump[i] = nodesForUpdate[i]->nextJump[i];
+       nodesForUpdate[i]->nextJump[i] = newNode;
+   }
+    nodesForUpdate[0]->next =newNode;
+}
+
+template <class Value, class Key, int numLevels>
+int SkipList<Value, Key, numLevels>::randLevel()
+{
+    int level = 0;
+    while(((double) rand() / (RAND_MAX)) < _probability && level < numLevels - 1)
+        level++;
+    return level;
+}
+template <class Value, class Key, int numLevels>
+void SkipList<Value, Key, numLevels>::removeNext(Node* nodeBefore)
+{
+    if(!nodeBefore)
+        throw std::invalid_argument("null");
+    Key keyForRemoving = nodeBefore->next->key;
+    Node* nodesForUpdate[numLevels];
+    Node* tmp = Base::_preHead;
+    for(int i = numLevels - 1; i >= 0; i--)
+    {
+        while(tmp->nextJump[i] != Base::_preHead && tmp->nextJump[i]->key < keyForRemoving)
+            tmp = tmp->nextJump[i];
+        nodesForUpdate[i] = tmp;
+    }
+    Node* prev = tmp;
+    tmp = tmp->next;
+    if(tmp == Base::_preHead || tmp->key != keyForRemoving)
+        throw std::invalid_argument("wrong");
+    for(int i = 0; i < numLevels; i++)
+    {
+        if(nodesForUpdate[i]->nextJump[i] != tmp)
+            break;
+        nodesForUpdate[i]->nextJump[i] = tmp->nextJump[i];
+    }
+    prev->next = tmp->next;
+    delete tmp;
+}
+
+template <class Value, class Key, int numLevels>
+typename SkipList<Value,Key,numLevels>::Node* SkipList<Value, Key, numLevels>::findLastLessThan(const Key& key) const
+{
+    Node* tmp = Base::_preHead;
+    for(int i = numLevels - 1; i >= 0; i--)
+    {
+        while(tmp->nextJump[i] != Base::_preHead && tmp->nextJump[i]->key < key)
+            tmp = tmp->nextJump[i];
+    }
+    if(tmp != Base::_preHead && tmp->next != Base::_preHead && tmp->next->key < key)
+        tmp = tmp->next;
+    return tmp;
+}
+
+template<class Value, class Key, int numLevels>
+typename SkipList<Value,Key,numLevels>::Node *SkipList<Value, Key, numLevels>::findFirst(const Key &key) const
+{
+    Node* tmp = findLastLessThan(key);
+    if(tmp == tmp->next || tmp->next == Base::_preHead)
+        return nullptr;
+    if(tmp->next->key != key)
+        return nullptr;
+    return tmp->next;
+}
+
+
+
+

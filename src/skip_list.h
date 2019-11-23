@@ -77,6 +77,7 @@ public:
     /// Init with a key and a value.
     NodeSkipList(const Key& tkey, const Value& val);
 
+
 protected:
     /// Clears all next links - dense and sparse levels and other fields.
     void clear();
@@ -143,6 +144,10 @@ public:
     /// 
     /// If nothing was found, returns nullptr.
     virtual Node* findFirst(const Key& key) const;
+
+
+
+    int randLevel();
 
 protected:
     /// Stores the probability of the next level to appear.
